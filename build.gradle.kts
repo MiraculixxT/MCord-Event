@@ -36,12 +36,12 @@ dependencies {
     implementation(group = "com.github.philippheuer.events4j", name = "events4j-handler-simple", version = "0.9.8")
 }
 
+application {
+    mainClass.set("de.miraculixx.mcord_event.MainKt")
+}
 
 tasks {
     jar {
-        application {
-            mainClass.set("de.miraculixx.mcord_event.MainKt")
-        }
         manifest {
             attributes["Main-Class"] = "de.miraculixx.mcord_event.MainKt"
         }

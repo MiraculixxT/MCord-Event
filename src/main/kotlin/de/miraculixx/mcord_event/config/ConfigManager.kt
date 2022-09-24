@@ -1,5 +1,6 @@
 package de.miraculixx.mcord_event.config
 
+import de.miraculixx.mcord_event.Main
 import java.io.File
 
 object ConfigManager {
@@ -15,15 +16,16 @@ object ConfigManager {
     init {
         var jarPath = File(this.javaClass.protectionDomain.codeSource.location.toURI()).path
         val jarName = jarPath.substring(jarPath.lastIndexOf("/") + 1)
-        jarPath = jarPath.removeSuffix(jarName)
+        jarPath = jarName.removeSuffix(jarName)
+        val cl = Main::class.java
 
         val s = File.separator
         val configFolder = File("$jarPath${s}config")
         if (!configFolder.exists() || !configFolder.isDirectory) configFolder.mkdirs()
 
         configs = mapOf(
-            Configs.CORE to Config("${configFolder.path}${s}core.yml"),
-            Configs.SETTINGS to Config("${configFolder.path}${s}config.yml"),
+            Configs.CORE to Config(cl.getResourceAsStream("core.yml"), "core"),
+            Configs.SETTINGS to Config(cl.getResourceAsStream("config.yml"), "config"),
         )
 
 

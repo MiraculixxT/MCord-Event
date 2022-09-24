@@ -6,11 +6,11 @@ import de.miraculixx.mcord_event.utils.log.log
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.InputStream
+import kotlin.io.path.Path
 
-class Config(path: String) {
+class Config(stream: InputStream?, private val name: String) {
     private val yaml: Yaml = Yaml()
     private val configMap: Map<String, Any>
-    private val name: String
 
 
     fun getString(name: String): String {
@@ -60,38 +60,33 @@ class Config(path: String) {
     }
 
 
-    private fun loadConfig(file: File): InputStream? {
+    private fun loadConfig(file: File) {
         ">> Create new Config File - $name".log()
         val classLoader = this.javaClass.classLoader
         if (!file.exists()) {
             file.createNewFile()
             val stream = classLoader.getResourceAsStream(name)
             if (stream != null) file.writeBytes(stream.readAllBytes())
-            return stream
         }
-        return file.inputStream()
     }
 
     init {
-        name = path.substring(path.lastIndexOf('/') + 1)
         ">> Load Config - $name".log()
-        val file = File(path)
-        val stream = if (!file.exists()) loadConfig(file)
-        else file.inputStream()
+        val file = Path("config/$name.yml").toFile()
+        configMap = if (stream != null) {
+            if (!file.exists()) loadConfig(file)
 
-        configMap = if (stream == null) {
-            "ERROR - Empty or corrupted Configuration File".log()
-            "ERROR - Config Path -> $path".log()
-            emptyMap()
-        } else {
             try {
-                yaml.load(stream)
+                yaml.load(file.inputStream())
             } catch (e: Exception) {
                 e.printStackTrace()
                 "ERROR - Failed to load Configuration File. ^^ Reason above ^^".log()
-                "ERROR - Config Path -> $path".log()
+                "ERROR - Config Path -> ${file.path}".log()
                 emptyMap()
             }
+        } else {
+            "ERROR - Configuration file is null".log()
+            emptyMap()
         }
     }
 }
