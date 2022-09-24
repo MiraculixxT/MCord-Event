@@ -1,0 +1,15 @@
+#---------------------------->> Credentials <<----------------------------#
+#                   Replace these values with your tokens                 #
+#           !IMPORTANT! - Do not share these values with anyone!          #
+#-------------------------------------------------------------------------#
+
+# Discord Bot Token
+# Get it on https://discord.com/developers/applications/
+DISCORD_TOKEN: "ODk4MjY3NDAxNjY4NDA3Mzc3.GEIAWZ.G5JxbMPFXVPWgRiYuaHARQGZtPy1yZLS6BSWik"
+
+# MariaDB SQL Token
+# This Key is privat. Replace it with your own SQL Key
+SQL_TOKEN: ""
+
+
+TWITCH_TOKEN: ""
