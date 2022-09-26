@@ -2,6 +2,7 @@
 
 package de.miraculixx.mcord_event.config
 
+import de.miraculixx.mcord_event.utils.enumOf
 import de.miraculixx.mcord_event.utils.log.log
 import org.yaml.snakeyaml.Yaml
 import java.io.File
@@ -59,14 +60,16 @@ class Config(stream: InputStream?, private val name: String) {
         return getString(name).lowercase() == "true"
     }
 
+    inline fun <reified T : Enum<T>> getEnum(name: String): T? {
+        return enumOf<T>(getString(name))
+    }
 
-    private fun loadConfig(file: File) {
+
+    private fun loadConfig(file: File, input: InputStream) {
         ">> Create new Config File - $name".log()
-        val classLoader = this.javaClass.classLoader
         if (!file.exists()) {
             file.createNewFile()
-            val stream = classLoader.getResourceAsStream(name)
-            if (stream != null) file.writeBytes(stream.readAllBytes())
+            file.writeBytes(input.readAllBytes())
         }
     }
 
@@ -74,7 +77,7 @@ class Config(stream: InputStream?, private val name: String) {
         ">> Load Config - $name".log()
         val file = Path("config/$name.yml").toFile()
         configMap = if (stream != null) {
-            if (!file.exists()) loadConfig(file)
+            if (!file.exists()) loadConfig(file, stream)
 
             try {
                 yaml.load(file.inputStream())

@@ -1,6 +1,6 @@
 package de.miraculixx.mcord_event.modules.commands
 
-import de.miraculixx.mcord.utils.api.SQL
+import de.miraculixx.mcord_event.utils.api.SQL
 import de.miraculixx.mcord_event.utils.entities.SlashCommandEvent
 import dev.minn.jda.ktx.messages.Embed
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent

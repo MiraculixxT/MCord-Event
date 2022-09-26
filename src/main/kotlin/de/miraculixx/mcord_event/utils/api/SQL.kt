@@ -1,4 +1,4 @@
-package de.miraculixx.mcord.utils.api
+package de.miraculixx.mcord_event.utils.api
 
 import de.miraculixx.mcord_event.config.ConfigManager
 import de.miraculixx.mcord_event.config.Configs
@@ -16,7 +16,7 @@ object SQL {
     private fun connect(): Connection {
         val con = DriverManager.getConnection(
             "jdbc:mariadb://localhost:3306/event_bot",
-            "mcord",
+            "dcEventBot",
             ConfigManager.getConfig(Configs.CORE).getString("SQL_TOKEN")
         )
         if (con.isValid(0))
@@ -65,8 +65,9 @@ object SQL {
     }
 
     suspend fun getHalloweenData(discordSnowflake: Long): HalloweenData {
-        val user = getUser(discordSnowflake)
-        val result = call("SELECT * FROM halloween22 WHERE ID=${user.id}")
+        val result = call("SELECT Points, C_Common, C_Rare, C_Epic, C_Legendary, N_Silver, N_Gold " +
+                "FROM halloween22 JOIN accountConnect " +
+                "WHERE Discord=$discordSnowflake && accountConnect.ID=halloween22.ID")
         result.next()
 
         return HalloweenData(

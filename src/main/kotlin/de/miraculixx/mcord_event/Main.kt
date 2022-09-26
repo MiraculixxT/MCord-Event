@@ -10,6 +10,7 @@ import de.miraculixx.mcord_event.modules.twitch.ChatEvent
 import de.miraculixx.mcord_event.utils.log.Color
 import de.miraculixx.mcord_event.utils.log.consoleChannel
 import de.miraculixx.mcord_event.utils.log.log
+import de.miraculixx.mcord_event.utils.manager.BootUp
 import de.miraculixx.mcord_event.utils.manager.SlashCommandManager
 import dev.minn.jda.ktx.events.getDefaultScope
 import dev.minn.jda.ktx.jdabuilder.default
@@ -23,9 +24,8 @@ import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.ChunkingFilter
 import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag
-import java.util.*
 
-fun main(args: Array<String>) {
+fun main() {
     Main()
 }
 
@@ -38,41 +38,43 @@ class Main {
     init {
         getDefaultScope().launch {
             val coreConf = ConfigManager.getConfig(Configs.CORE)
-            val dcToken = coreConf.getString("DISCORD_TOKEN")
-            dcToken.log()
-            jda = default(dcToken) {
-                disableCache(CacheFlag.VOICE_STATE)
-                setActivity(Activity.watching("spooky creatures"))
-                setStatus(OnlineStatus.DO_NOT_DISTURB)
-                intents += listOf(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS)
-                intents -= listOf(GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_BANS, GatewayIntent.GUILD_MESSAGE_TYPING)
-                setMemberCachePolicy(MemberCachePolicy.ALL)
-                setChunkingFilter(ChunkingFilter.include(707925156919771158))
+
+            // Discord Bot
+            val dc = launch {
+                val dcToken = coreConf.getString("DISCORD_TOKEN")
+                jda = default(dcToken) {
+                    disableCache(CacheFlag.VOICE_STATE)
+                    setActivity(Activity.watching("spooky creatures"))
+                    setStatus(OnlineStatus.DO_NOT_DISTURB)
+                    intents += listOf(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS)
+                    intents -= listOf(GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_BANS, GatewayIntent.GUILD_MESSAGE_TYPING)
+                    setMemberCachePolicy(MemberCachePolicy.ALL)
+                    setChunkingFilter(ChunkingFilter.include(707925156919771158))
+                }
+                jda.awaitReady()
+                consoleChannel = jda.getTextChannelById(1023336602992390186)!!
+
+                "MKord is now online!".log(Color.GREEN)
             }
-            jda.awaitReady()
-
-            SlashCommandManager.startListen(jda)
-
-            consoleChannel = jda.getGuildById(989881712492298250)?.getTextChannelById(1021752087803076698)
-
-            "MKord is now online!".log(Color.GREEN)
 
             // Twitch Bot
-            val token = OAuth2Credential("twitch", coreConf.getString("TWITCH_TOKEN"))
-            twitchClient = TwitchClientBuilder.builder()
-                .withEnableHelix(true)
-                .withEnableChat(true)
-                .withChatAccount(token)
-                .withDefaultAuthToken(token)
-                .build()
+            val tv = launch {
+                val token = OAuth2Credential("twitch", coreConf.getString("TWITCH_TOKEN"))
+                twitchClient = TwitchClientBuilder.builder()
+                    .withEnableHelix(true)
+                    .withEnableChat(true)
+                    .withChatAccount(token)
+                    .withDefaultAuthToken(token)
+                    .build()
 
-            twitchClient.chat.joinChannel("miraculixxt")
-            twitchClient.clientHelper.enableStreamEventListener("miraculixxt")
+                twitchClient.chat.joinChannel("miraculixxt")
+                twitchClient.clientHelper.enableStreamEventListener("miraculixxt")
 
-            val eventManager = twitchClient.eventManager
-            eventManager.getEventHandler(SimpleEventHandler::class.java).registerListener(ChatEvent())
+                "Twitch Client is now online!".log(Color.GREEN)
+            }
 
-            "Twitch Client is now online!".log(Color.GREEN)
+            while (!tv.isCompleted ||  !dc.isCompleted) {} // await boot up
+            BootUp(jda, twitchClient)
         }
 
         shutdown()
@@ -100,3 +102,4 @@ class Main {
 }
 
 val JDA by lazy { Main.jda }
+val TwitchClient by lazy { Main.twitchClient }

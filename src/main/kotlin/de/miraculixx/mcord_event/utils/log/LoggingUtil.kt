@@ -7,23 +7,23 @@ import dev.minn.jda.ktx.messages.send
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import java.time.Instant
-import java.util.logging.Logger
 
-private val logger = Logger.getGlobal()
 var consoleChannel: MessageChannel? = null
 
 fun String.log(color: Color = Color.WHITE) {
-    printToConsole(this, "\u001B[${color.code}m")
+    printToConsole("\u001B[${Color.BLUE.code}mINFO: \u001B[${color.code}m$this", "**INFO:** $this")
 }
 
 fun String.error() {
-    printToConsole(this, "\u001b[${Color.RED.code}m")
+    printToConsole("\u001B[${Color.BLUE.code}mERROR: \u001B[${Color.RED.code}m$this", "**ERROR:** $this")
 }
 
-private fun printToConsole(input: String, color: String) = getDefaultScope().launch {
-    logger.info(color + input)
+private fun printToConsole(input: String, raw: String) = getDefaultScope().launch {
+    println("$input\u001B[0m")
+
+    //DC Logging
     val timestamp = Instant.now().epochSecond
-    consoleChannel?.send("<t:$timestamp:T> $input")
+    consoleChannel?.send("<t:$timestamp:T> $raw")?.queue()
 }
 
 private fun prettyNumber(int: Int): String {
