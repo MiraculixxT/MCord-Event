@@ -69,16 +69,38 @@ class Creature(private val type: CreatureType) {
         val halloweenData = SQL.getHalloweenData(userSnowflake)
         val chance = when (net) {
             CatchNet.BASIC -> basicOdds
-            CatchNet.SILVER -> if (halloweenData.nSilver <= 0) 0 else silverOdds
-            CatchNet.GOLD -> if (halloweenData.nGold <= 0) 0 else 100
+            CatchNet.SILVER -> if (halloweenData.nSilver <= 0) 0 else {
+                val userData = SQL.getUser(userSnowflake)
+                SQL.call("UPDATE halloween22 SET N_Silver=N_Silver-1 WHERE ID=${userData.id}")
+                silverOdds
+            }
+            CatchNet.GOLD -> if (halloweenData.nGold <= 0) 0 else {
+                val userData = SQL.getUser(userSnowflake)
+                SQL.call("UPDATE halloween22 SET N_Gold=N_Gold-1 WHERE ID=${userData.id}")
+                100
+            }
         }
 
         if (chance == 0.toShort()) {
-            hook.editOriginal("```diff\n- Oh nein, es scheint als hättest du keine ${net.pronoun} Netze mehr :(```")
+            hook.editOriginalEmbed(
+                Embed {
+                    title = "Oh nein!"
+                    description = "Es scheint als hättest du keine ${net.pronoun} Netze mehr :sadge:\n" +
+                            "Erhalte mehr durch **chatten** oder hole dir welche in <#123>"
+                    color = 0x444444
+                }
+            ).queue()
+        } else if ((0..100).random() >= chance) {
+            //catch
+        } else {
+            users.add(userSnowflake)
+            tries++
+            hook.editOriginalEmbed(
+                Embed {
+                    description = "Du hast ein ${net.pronoun} Netz geworfen, aber "
+                }
+            )
         }
-
-        users.add(userSnowflake)
-        tries++
     }
 
     init {

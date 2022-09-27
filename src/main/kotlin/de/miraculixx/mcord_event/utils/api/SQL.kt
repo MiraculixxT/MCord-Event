@@ -68,7 +68,10 @@ object SQL {
         val result = call("SELECT Points, C_Common, C_Rare, C_Epic, C_Legendary, N_Silver, N_Gold " +
                 "FROM halloween22 JOIN accountConnect " +
                 "WHERE Discord=$discordSnowflake && accountConnect.ID=halloween22.ID")
-        result.next()
+        if (!result.next()) {
+            createUser(discordSnowflake, null)
+            return getHalloweenData(discordSnowflake)
+        }
 
         return HalloweenData(
             result.getInt("Points"),
