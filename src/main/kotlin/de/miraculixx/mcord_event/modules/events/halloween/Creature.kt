@@ -4,7 +4,6 @@ import de.miraculixx.mcord_event.modules.events.halloween.data.CatchNet
 import de.miraculixx.mcord_event.modules.events.halloween.data.CreatureType
 import de.miraculixx.mcord_event.modules.events.halloween.data.Rarity
 import de.miraculixx.mcord_event.utils.api.SQL
-import de.miraculixx.mcord_event.utils.extensions.fancy
 import dev.minn.jda.ktx.generics.getChannel
 import dev.minn.jda.ktx.interactions.components.button
 import dev.minn.jda.ktx.messages.Embed
@@ -46,9 +45,9 @@ class Creature(private val type: CreatureType) {
             }
         ), components = listOf(
             ActionRow.of(
-                button("EVENT:HALLOWEEN:BASIC:${type.name}", "Basic", Emoji.fromFormatted("<:basic_net:1023594136655372419>"), ButtonStyle.SECONDARY),
-                button("EVENT:HALLOWEEN:SILVER:${type.name}", "Silber", Emoji.fromFormatted("<:silver_net:1023682513970925699>"), ButtonStyle.PRIMARY),
-                button("EVENT:HALLOWEEN:GOLD:${type.name}", "Gold", Emoji.fromFormatted("<:gold_net:1023594135153807392>"), ButtonStyle.PRIMARY)
+                button("EVENT:HALLOWEEN:BASIC:${type.name}", "Basic", Emoji.fromFormatted(CatchNet.BASIC.emote), ButtonStyle.SECONDARY),
+                button("EVENT:HALLOWEEN:SILVER:${type.name}", "Silber", Emoji.fromFormatted(CatchNet.SILVER.emote), ButtonStyle.PRIMARY),
+                button("EVENT:HALLOWEEN:GOLD:${type.name}", "Gold", Emoji.fromFormatted(CatchNet.GOLD.emote), ButtonStyle.PRIMARY)
             )
         )
         ).queue()
@@ -60,8 +59,9 @@ class Creature(private val type: CreatureType) {
         val userSnowflake = hook.interaction.user.idLong
 
         if (users.contains(userSnowflake)) {
-            hook.editOriginal("```diff\n- Bei deinem ersten Fangversuch ist die Kreatur entwischt...\n- (Nur ein Versuch pro Kreatur)```" +
-                    if (fast) " Btw... du klickst **seehr** schnell... Und sehr häufig <:Susge:949672033199996978>" else ""
+            hook.editOriginal(
+                "```diff\n- Bei deinem ersten Fangversuch ist die Kreatur entwischt...\n- (Nur ein Versuch pro Kreatur)```" +
+                        if (fast) " Btw... du klickst **seehr** schnell... Und sehr häufig <:Susge:949672033199996978>" else ""
             ).queue()
             return
         }
@@ -74,6 +74,7 @@ class Creature(private val type: CreatureType) {
                 SQL.call("UPDATE halloween22 SET N_Silver=N_Silver-1 WHERE ID=${userData.id}")
                 silverOdds
             }
+
             CatchNet.GOLD -> if (halloweenData.nGold <= 0) 0 else {
                 val userData = SQL.getUser(userSnowflake)
                 SQL.call("UPDATE halloween22 SET N_Gold=N_Gold-1 WHERE ID=${userData.id}")
@@ -82,10 +83,10 @@ class Creature(private val type: CreatureType) {
         }
 
         if (chance == 0.toShort()) {
-            hook.editOriginalEmbed(
+            hook.editOriginalEmbeds(
                 Embed {
                     title = "Oh nein!"
-                    description = "Es scheint als hättest du keine ${net.pronoun} Netze mehr :sadge:\n" +
+                    description = "Es scheint als hättest du keine ${net.emote} ${net.pronoun} Netze mehr :sadge:\n" +
                             "Erhalte mehr durch **chatten** oder hole dir welche in <#123>"
                     color = 0x444444
                 }
@@ -95,9 +96,10 @@ class Creature(private val type: CreatureType) {
         } else {
             users.add(userSnowflake)
             tries++
-            hook.editOriginalEmbed(
+            hook.editOriginalEmbeds(
                 Embed {
-                    description = "Du hast ein ${net.pronoun} Netz geworfen, aber "
+                    description = "Du hast ein **${net.pronoun} Netz** geworfen, aber... ```diff\n- es hat leider nicht getroffen```\n" +
+                            "> Fangchance - $chance% ${net.emote}"
                 }
             )
         }
@@ -109,14 +111,17 @@ class Creature(private val type: CreatureType) {
                 basicOdds = 60
                 silverOdds = 80
             }
+
             Rarity.RARE -> {
                 basicOdds = 50
                 silverOdds = 75
             }
+
             Rarity.EPIC -> {
                 basicOdds = 35
                 silverOdds = 60
             }
+
             Rarity.LEGENDARY -> {
                 basicOdds = 20
                 silverOdds = 50
