@@ -3,6 +3,7 @@ package de.miraculixx.mcord_event.utils.manager
 import de.miraculixx.mcord_event.JDA
 import de.miraculixx.mcord_event.modules.commands.ConnectAccountCMD
 import de.miraculixx.mcord_event.modules.commands.LeaderboardCMD
+import de.miraculixx.mcord_event.modules.commands.SendCMD
 import de.miraculixx.mcord_event.modules.commands.ToggleEventCMD
 import de.miraculixx.mcord_event.utils.guildMiraculixx
 import de.miraculixx.mcord_event.utils.guildTest
@@ -17,7 +18,8 @@ object SlashCommandManager {
     private val commands = mapOf(
         "change-event" to ToggleEventCMD(),
         "connect" to ConnectAccountCMD(),
-        "leaderboard" to LeaderboardCMD()
+        "leaderboard" to LeaderboardCMD(),
+        "send" to SendCMD()
     )
 
     fun startListen(jda: JDA) = jda.listener<SlashCommandInteractionEvent> {
@@ -31,6 +33,11 @@ object SlashCommandManager {
         //Implement all Commands into Discord
 
         "Guilds - ${JDA.guilds.size}".log()
+        JDA.updateCommands().addCommands(
+                Command("send", "Sends any kind of message") {
+                    option<String>("msg", "The message content to send", true)
+                }
+            ).queue()
         listOf(guildTest, guildMiraculixx).forEach {
             it.upsertCommand("change-event", "Change the current active event (none = disable)") {
                 defaultPermissions = DefaultMemberPermissions.DISABLED

@@ -92,6 +92,14 @@ class Creature(private val type: CreatureType) {
                 }
             ).queue()
         } else if ((0..100).random() >= chance) {
+            
+            hook.editOriginalEmbeds(
+                Embed {
+                    title = "Gefangen!"
+                    description = "Du hast ein **${net.pronoun} Netz** geworfen und... ```diff\n+ die Kreatur getroffen!```\n" +
+                            "Sie überlässt dir "
+                }
+            )
             //catch
         } else {
             users.add(userSnowflake)

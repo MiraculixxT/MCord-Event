@@ -1,8 +1,8 @@
 package de.miraculixx.mcord_event.modules.events.halloween.data
 
-enum class Rarity {
-    COMMON,
-    RARE,
-    EPIC,
-    LEGENDARY
+enum class Rarity(candy: Int) {
+    COMMON(10),
+    RARE(20),
+    EPIC(35),
+    LEGENDARY(60)
 }
