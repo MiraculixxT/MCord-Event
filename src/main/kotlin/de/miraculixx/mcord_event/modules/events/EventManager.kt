@@ -1,6 +1,7 @@
 package de.miraculixx.mcord_event.modules.events
 
 import de.miraculixx.mcord_event.modules.events.halloween.Creature
+import de.miraculixx.mcord_event.modules.events.halloween.NetClick
 import de.miraculixx.mcord_event.modules.events.halloween.Spawner
 import de.miraculixx.mcord_event.utils.entities.EventListener
 import de.miraculixx.mcord_event.utils.log.Color
@@ -27,7 +28,7 @@ object EventManager {
                 Event.NONE -> {}
 
                 Event.HALLOWEEN -> {
-                    listener.addAll(listOf(Spawner()))
+                    listener.addAll(listOf(Spawner(), NetClick()))
                 }
             }
             if (event == Event.NONE) "Events wurden deaktiviert!".log(Color.RED)

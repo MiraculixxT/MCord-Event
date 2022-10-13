@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 
 class Spawner : EventListener {
-    private var leftToSpawn = 0
+    private var leftToSpawn = (20..50).random()
 
     override val listener = JDA.listener<MessageReceivedEvent> {
         if (it.author.isBot || it.author.isSystem) return@listener
@@ -22,9 +22,9 @@ class Spawner : EventListener {
         if (EventManager.currentCreature != null) return@listener
         if (leftToSpawn <= 0) {
 
+            leftToSpawn = (20..50).random()
             spawnCreature(it.channel)
 
-            leftToSpawn = (2..3).random()
             "**HALLOWEEN >>** Spawn a new creature".log(Color.GREEN)
         }
         "**HALLOWEEN >>** Left to spawn: $leftToSpawn".log()
